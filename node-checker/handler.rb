@@ -19,12 +19,21 @@ class Handler
       bearer_token_file: '/var/openfaas/secrets/bearer-token'
     }
 
+    # TODO: do not verify ssl for now until ca.crt can be fed to
+    # the function
+    ssl_options = { verify_ssl: OpenSSL::SSL::VERIFY_NONE }
+
     client = Kubeclient::Client.new(
-      'https://localhost:8443/api',
+      'https://kubernetes.default.svc',
       'v1',
-      auth_options: auth_options
+      auth_options: auth_options,
+      ssl_options: ssl_options
     )
-    logging.info auth_options.inspect
+    logging.info client.inspect
+    nodes = client.get_nodes
+    nodes.each do |n|
+      logging.info("Node:  #{n.inspect}")
+    end
     body = "Hello world from the Ruby template #{Time.now}"
 
     [body, response_headers, status_code]
