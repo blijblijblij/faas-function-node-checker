@@ -32,7 +32,7 @@ class Handler
     logging.info client.inspect
     nodes = client.get_nodes
     nodes.each do |n|
-      logging.info("Node:  #{n.inspect}")
+      logging.info("Node:  #{n.metadata.name} on #{n.metadata.namespace}")
     end
     body = "Hello world from the Ruby template #{Time.now}"
 
