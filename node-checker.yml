@@ -1,0 +1,9 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: https://faas.blijblijblij.com
+functions:
+  homepage:
+    lang: ruby-http
+    handler: ./node-checker
+    image: blijblijblij/node-checker:latest
