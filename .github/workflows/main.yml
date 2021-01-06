@@ -1,0 +1,65 @@
+name: CI/CD
+
+on:
+  push:
+    branches: 
+      - develop
+jobs:
+  func-build:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - 
+        name: Define ENV VARS
+        id: define_env
+        run:  echo "::set-output name=github-sha-short::$(echo $GITHUB_SHA | cut -c 1-7)"
+      -
+        name: Pull template
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          args: template pull https://github.com/blijblijblij/ruby-http
+      -
+        name: Run shrinkwrap build
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          args: build -f node-checker.yml --shrinkwrap
+      -
+        name: Login to OpenFaaS Gateway
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          args: login -u ${{ secrets.OPENFAAS_USERNAME}} \
+                      -p ${{ secrets.OPENFAAS_PASSWORD }} \
+                      -g ${{ secrets.OPENFAAS_GATEWAY }}
+      -
+        name: Login to DockerHub
+        if: success()
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - 
+        name: Build and Push the OpenFaaS function
+        uses: docker/build-push-action@v2
+        with:
+          context: ./build/node-checker/
+          file: ./build/node-checker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            ADDITIONAL_PACKAGE=build-essential
+          tags: |
+            blijblijblij/node-checker:latest-${{ steps.define_env.outputs.github-sha-short }}
+            blijblijblij/node-checker:latest
+      - 
+        name: Deploy the function
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          args: deploy -f node-checker.yml --tag sha 
