@@ -16,7 +16,7 @@ class Handler
     logging.info('#############################')
 
     auth_options = {
-      bearer_token: ENV['K3S_BEARER_TOKEN']
+      bearer_token_file: '/var/openfaas/secrets/bearer-token'
     }
 
     client = Kubeclient::Client.new(
@@ -24,7 +24,7 @@ class Handler
       'v1',
       auth_options: auth_options
     )
-    logging.info client.to_s
+    logging.info auth_options.inspect
     body = "Hello world from the Ruby template #{Time.now}"
 
     [body, response_headers, status_code]
