@@ -7,4 +7,6 @@ functions:
     lang: ruby-http
     handler: ./node-checker
     image: blijblijblij/node-checker:latest
+    secrets:
+      - bearer-token
 
