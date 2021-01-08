@@ -10,10 +10,6 @@ secrets to github:
 # a github personal access token to push to ghcr.io, github's container registry
 CR_PAT
 
-# docker credentials for pushing to docker hub
-DOCKER_USERNAME
-DOCKER_PASSWORD
-
 # faas env settings to interact with the faas endpoint
 OPENFAAS_USERNAME
 OPENFAAS_PASSWORD
