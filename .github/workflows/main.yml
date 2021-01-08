@@ -69,4 +69,4 @@ jobs:
         name: Deploy the function
         uses: docker://openfaas/faas-cli:latest-root
         with:
-          args: deploy -f node-checker.yml
+          args: deploy -f node-checker.yml --tag sha
